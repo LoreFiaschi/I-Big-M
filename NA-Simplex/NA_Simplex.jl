@@ -40,7 +40,7 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
             println("Resume:");
             println("\ttotal iterations: $iter");
             print("\tobjective function: "); println(obj);
-            return obj, x, B, y;
+            return obj, xB, y, B;
         end
         
         d = inv_A_B*A[:,N[k]];
@@ -48,10 +48,10 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         
         if isempty(zz)
             obj = convert(T, Inf);
-            x = NaN;
+            xB = NaN;
             y = NaN;
             println("Problem unbounded");
-            return obj, x, y
+            return obj, xB, y, B
         end
         
         quality = xB[zz]./d[zz];
