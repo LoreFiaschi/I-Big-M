@@ -12,12 +12,33 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 
     x = zeros(T, n_variables);
     x[B] = xB;
+    
+    if genLatex
+        println("\\begin{table}[!ht]");
+        println("\t\\centering");
+        println("\t\\caption{}");
+        println("\t\\begin{tabular}{|c|c|c|c|}");
+        println("\t\\hline");
+        println("\t\\textbf{Iter.} & \\textbf{Base} & \$ \\mathbf{x}^* \$ & \$ \\tilde{\\mathbf{c}}^T \\mathbf{x}^* \$ \\\\");
+        println("\t\\hline");
+    end
 
     iter = 0;
     while true
         iter +=1;
         
-        if verbose
+        if genLatex
+            print("\t$iter & \$ \\{$(B[1])");
+            for elem in B[2:end]
+            print(",\\, $elem");
+            end
+            print("\\} \$ & \$ ");
+            print_latex(x/sum(x));
+            print(" \$ & \$ ");
+            print_latex((c'*x)[1]);
+            println(" \$ \\\\");
+            println("\t\\hline");
+        elseif verbose
             println("Iteration: $iter");
             println(string("\tB: ", B));
             print("\tSolution: ");
@@ -34,6 +55,12 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         k_val = sN[k];
 
         if k_val <= eps
+            if genLatex
+                println("\\end{tabular}");
+                println("\\label{tab:}")
+                println("\\end{table}");
+                println("");
+            end
             x[B] = xB;
             obj = c'*x;
             println("Optimization completed");
@@ -69,5 +96,4 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         x[B] = xB;
         x[N[k]] = zero(Ban);
     end
-
 end

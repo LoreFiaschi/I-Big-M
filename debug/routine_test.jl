@@ -1,7 +1,6 @@
 include("../I_Big_M.jl")
 include("../../ArithmeticNonStandarNumbersLibrary/BAN.jl")
 using .BAN
-using Debugger
 
 A = Matrix{Ban}(undef, 5, 3);
 A[1,1] = Ban(0, [2,0,0,0]); A[1,2] = Ban(0, [1,0,0,0]); A[1,3] = Ban(0, [-3,0,0,0]);
