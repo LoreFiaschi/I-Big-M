@@ -5,7 +5,7 @@ function I_Big_M(A::Matrix{T},b::Array{T,2},c::Array{T,2},t::Array{Int64,1},
 
 	# The problem form
 	#
-	#   min c^T x
+	#   max c^T x
 	#
 	#	s.t. Ax <= b for t < 0
 	#		 Ax  = b for t = 0
@@ -18,7 +18,7 @@ function I_Big_M(A::Matrix{T},b::Array{T,2},c::Array{T,2},t::Array{Int64,1},
 	any(x->x<0, b) && error("b must be a vector of non-negative entries")
 
 	_A,_b,_c,initial_base = modify(A,b,c,t);
-	obj, x, y, base = NA_Simplex(_A,_b,_c,initial_base,eps,verbose,genLatex);
+	obj, x, base = NA_Simplex(_A,_b,_c,initial_base,eps,verbose,genLatex);
 	
-	return obj, x, y, base;
+	return obj, x[1:size(A)[2]], base;
 end
