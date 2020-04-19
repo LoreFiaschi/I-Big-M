@@ -55,18 +55,21 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         k_val = sN[k];
 
         if k_val <= eps
+            x[B] = xB;
+            obj = c'*x;
+            
             if genLatex
                 println("\\end{tabular}");
                 println("\\label{tab:}")
                 println("\\end{table}");
                 println("");
+            elseif verbose
+                println("Optimization completed");
+                println("Resume:");
+                println("\ttotal iterations: $iter");
+                print("\tobjective function: "); println(obj);
             end
-            x[B] = xB;
-            obj = c'*x;
-            println("Optimization completed");
-            println("Resume:");
-            println("\ttotal iterations: $iter");
-            print("\tobjective function: "); println(obj);
+            
             return obj, x, B;
         end
         
