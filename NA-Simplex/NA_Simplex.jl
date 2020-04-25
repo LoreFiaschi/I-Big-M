@@ -33,7 +33,7 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
             print(",\\, $elem");
             end
             print("\\} \$ & \$ ");
-            print_latex(x/sum(x));
+            print_latex(x);
             print(" \$ & \$ ");
             print_latex((c'*x)[1]);
             println(" \$ \\\\");
@@ -41,6 +41,8 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         elseif verbose
             println("Iteration: $iter");
             println(string("\tB: ", B));
+            print("\tCost: ")
+            println((c'*x)[1])
             print("\tSolution: ");
             println(x);
             println("");
@@ -68,6 +70,9 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
                 println("Resume:");
                 println("\ttotal iterations: $iter");
                 print("\tobjective function: "); println(obj);
+                println("")
+                println(c)
+                println(x)
             end
             
             return obj, x, B;
