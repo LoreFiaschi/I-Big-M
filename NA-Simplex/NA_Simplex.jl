@@ -70,9 +70,6 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
                 println("Resume:");
                 println("\ttotal iterations: $iter");
                 print("\tobjective function: "); println(obj);
-                println("")
-                println(c)
-                println(x)
             end
             
             return obj, x, B;
