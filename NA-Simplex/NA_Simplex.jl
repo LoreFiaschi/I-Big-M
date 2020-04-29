@@ -1,5 +1,5 @@
 function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
-						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=true,genLatex::Bool=true) where T <: Number
+						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=true,genLatex::Bool=false) where T <: Number
 
 
 	n_constraints, n_variables = size(A);
@@ -72,7 +72,7 @@ function NA_Simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
                 print("\tobjective function: "); println(obj);
             end
             
-            return obj, x, B;
+            return obj, x, B, iter;
         end
         
         d = inv_A_B*A[:,N[k]];

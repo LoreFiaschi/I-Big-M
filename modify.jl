@@ -42,7 +42,7 @@ function modify(A::Matrix{T},b::Array{T,2},c::Array{T,2},t::Array{Int64,1}) wher
 	
 	_c = zeros(T, nx+ns+ne+2*nr, 1);
 	_c[1:nx] = copy(c);
-	_c[nx+ns+1:nx+ns+ne+nr] = -ones(T, ne+nr).*(magnitude(maximum(c))<<1);
+	_c[nx+ns+1:nx+ns+ne+nr] = -ones(T, ne+nr).*(magnitude(maximum(abs.(c)))<<(length(one(Ban).num)+1));
 	
 	
 	return _A,_b,_c,[nx+1;nx+2:nx+ns+ne+nr];
