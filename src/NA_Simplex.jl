@@ -8,7 +8,8 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
     # Assume rank non-deficient initial base matrix
     xB = inv(A[:,B])*b;
     
-    any(x->x<0, xB) && error("Unfeasible problem")
+    #any(x->x<-eps, xB) && (println(""); true;) && (println(eps); println(""); println(xB[findall(x->x<-eps, xB)]); true;) && error("Unfeasible problem")
+    any(x->x<-0, xB) && (println(""); true;) && (println(xB); true;) && (println(b); true;) && error("Unfeasible problem")
 
     x = zeros(T, n_variables);
     x[B] = xB;
@@ -43,8 +44,8 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
             println(string("\tB: ", B));
             print("\tCost: ")
             println((c'*x)[1])
-            print("\tSolution: ");
-            println(x);
+            #print("\tSolution: ");
+            #println(x);
             println("");
         end
         
@@ -76,6 +77,7 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         end
         
         d = inv_A_B*A[:,N[k]];
+        #println(d)
         zz = findall(x->x>eps, d);
         
         if isempty(zz)
@@ -86,7 +88,7 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         end
         
         quality = xB[zz]./d[zz];
-        ii = argmin(quality);
+        ii = argmin(quality); 
         theta = quality[ii];
         
         l = zz[ii]
@@ -98,6 +100,6 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         xB[l] = theta;
      
         x[B] = xB;
-        x[N[k]] = zero(Ban);
+        x[N[k]] = zero(T);
     end
 end

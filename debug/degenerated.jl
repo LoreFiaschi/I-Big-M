@@ -1,5 +1,5 @@
-include("../I_Big_M.jl")
-include("../../ArithmeticNonStandarNumbersLibrary/BAN.jl")
+include("../src/I_Big_M.jl")
+include("../../ArithmeticNonStandarNumbersLibrary/src/BAN.jl")
 using .BAN
 
 A = [ 0      1;
