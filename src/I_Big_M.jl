@@ -1,6 +1,6 @@
 include("packages.jl")
 
-function I_Big_M(A::Matrix{T},b::Array{T,2},c::Array{T,2},t::Array{Int64,1};
+function I_Big_M(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t::AbstractVector{Int};
 						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=false,genLatex::Bool=false) where T <: Number
 
 	# The problem form

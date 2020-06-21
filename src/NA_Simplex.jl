@@ -28,6 +28,8 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
     while true
         iter +=1;
         
+        iter%100 == 0 && println(iter)
+        
         if genLatex
             print("\t$iter & \$ \\{$(B[1])");
             for elem in B[2:end]
@@ -82,9 +84,9 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         
         if isempty(zz)
             obj = convert(T, Inf);
-            xB = NaN;
-            println("Problem unbounded");
-            return obj, xB, B
+            x .= NaN;
+            verbose && println("Problem unbounded");
+            return obj, x, B, iter
         end
         
         quality = xB[zz]./d[zz];

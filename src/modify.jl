@@ -1,4 +1,4 @@
-function modify(A::Matrix{T},b::Array{T,2},c::Array{T,2},t::Array{Int64,1}) where T <: Number
+function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t::AbstractVector{Int},M::Real=-1) where T <: Number
 	
 	# information gathering
 	
@@ -42,8 +42,12 @@ function modify(A::Matrix{T},b::Array{T,2},c::Array{T,2},t::Array{Int64,1}) wher
 	
 	_c = zeros(T, nx+ns+ne+2*nr, 1);
 	_c[1:nx] = copy(c);
-	_c[nx+ns+1:nx+ns+ne+nr] = -ones(T, ne+nr).*(magnitude(maximum(abs.(c)))<<(length(one(Ban).num)+1));
-	
+    
+    if M < 0 # NA approach
+        _c[nx+ns+1:nx+ns+ne+nr] .= -α #-ones(T, ne+nr).*α#(α^(degree(maximum(abs.(c)))+length(one(Ban).num)+1));    
+    else  # std approach
+        _c[nx+ns+1:nx+ns+ne+nr] .= -M;
+    end
 	
 	return _A,_b,_c,[nx+1;nx+2:nx+ns+ne+nr];
 
