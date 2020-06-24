@@ -6,7 +6,7 @@ using Distributed
 
 # before launching: export JULIA_NUM_THREADS=8
 
-datasets = readdir("netlib");
+datasets = readdir("netlib_light");
 
 penalties = [100, 1000, 10000];
 
@@ -15,11 +15,17 @@ penalties = [100, 1000, 10000];
     file = datasets[3];
 
     problem =   with_logger(Logging.NullLogger()) do
-                    readqps("netlib/$file");
+                    readqps("netlib_light/$file");
                 end
     
     reverse = 1;
+    
+    println(problem.c[findall(x->x!=0, problem.c)])
+    
     problem.objsense == :min && (problem.c .*= -1; problem.c0 *= -1; reverse = -1) # reverse the opt direction
+    #problem.objsense != :max && (problem.c .*= -1; problem.c0 *= -1; reverse = -1) # reverse the opt direction
+    
+    println(problem.c[findall(x->x!=0, problem.c)])
     
     #problem.c .*= -1; problem.c0 *= -1; reverse = -1;
 
@@ -66,7 +72,7 @@ penalties = [100, 1000, 10000];
     
     for M in penalties
         obj, _, _, iter, feasible = Big_M(A, reshape(b, length(b), 1), reshape(c, length(c), 1), t, M=M, eps=tol);
-        open("../output/netlib/$(file[1:end-4]).txt", "a+") do out_file
+        open("../output/netlib_light/$(file[1:end-4]).txt", "a+") do out_file
             println(out_file, "$M $(reverse*obj[1]+problem.c0) $iter $feasible");
         end
     end

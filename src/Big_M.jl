@@ -25,11 +25,15 @@ function Big_M(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t:
     
     feasible = ifelse(obj==Inf, obj, all(z->abs(z)<=eps, view(x, view(init_b, count(z->z<0, t)+1:length(init_b)))));
     
-    #=
-    println(view(init_b, count(z->z<0, t)+1:length(init_b)));
-    println(x[findall(z->abs(z)>eps, x[view(init_b, count(z->z<0, t)+1:length(init_b))])]);
+    #println(view(init_b, count(z->z<0, t)+1:length(init_b)));
+    #println(x[findall(z->abs(z)>eps, x[view(init_b, count(z->z<0, t)+1:length(init_b))])]);
+    println("")
+    idx_c = findall(z->abs(z)>eps, c)
+    idx_x = findall(z->abs(z)>eps, x)
+    idx = setdiff(idx_x, idx_c)
+    println(idx)
+    println(x[idx])
     println("");
-    =#
-	
+    	
 	return obj, x[1:size(A)[2]], base, iter, feasible;
 end

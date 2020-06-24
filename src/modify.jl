@@ -37,7 +37,7 @@ function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t
 	
 	
 	# Creation and initialization of the vector _c
-	#	 	 _			 _
+	#	 	 _			   _
 	# _c =  |_ c* 0 -1 -1 0_|	*the entries are shrinked in order to be at most infinitesimal of the first order
 	
 	_c = zeros(T, nx+ns+ne+2*nr, 1);
@@ -48,6 +48,8 @@ function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t
     else  # std approach
         _c[nx+ns+1:nx+ns+ne+nr] .= -M;
     end
+    
+    println(_c[findall(x->x!=0, _c)])
 	
 	return _A,_b,_c,[nx+1;nx+2:nx+ns+ne+nr];
 
