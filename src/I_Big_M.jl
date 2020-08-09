@@ -15,7 +15,10 @@ function I_Big_M(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},
 	#	Assuming b >= 0
 	
 	# check whether b >= 0
-	any(x->x<0, b) && error("b must be a vector of non-negative entries")
+	any(x->x<0, b) && throw(ArgumentError("b must be a vector of non-negative entries"));
+	
+	# check wether any c[i] is infinite
+	any(x->degree(x)>=1, c) && throw(ArgumentError("Entries of c must be non-infinite"));
 
 	_A,_b,_c,initial_base = modify(A,b,c,t);
 	obj, x, base, iter = na_simplex(_A,_b,_c,initial_base,eps,verbose,genLatex);

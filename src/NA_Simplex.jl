@@ -2,14 +2,22 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=true,genLatex::Bool=false) where T <: Number
 
 
+	# The method implements the revised simplex method in Box 7.1 on page 103 of Chvatal
+
+	# Revised Simplex
+	#
+	# max  c'*x
+	# s.t. Ax = b
+	#      x >= 0
+
 	n_constraints, n_variables = size(A);
     N = setdiff(1:n_variables, B);
    
     # Assume rank non-deficient initial base matrix
     xB = inv(A[:,B])*b;
     
-    #any(x->x<-eps, xB) && (println(""); true;) && (println(eps); println(""); println(xB[findall(x->x<-eps, xB)]); true;) && error("Unfeasible problem")
-    any(x->x<-0, xB) && (println(""); true;) && (println(xB); true;) && (println(b); true;) && error("Unfeasible problem")
+    any(x->x<-eps, xB) && (println(""); true;) && (println(eps); println(""); println(xB[findall(x->x<-eps, xB)]); true;) && error("Unfeasible problem")
+    #any(x->x<0, xB) && (println(""); true;) && (println(xB); true;) && (println(b); true;) && error("Unfeasible problem")
 
     x = zeros(T, n_variables);
     x[B] = xB;
@@ -54,11 +62,22 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         y = c[B]'*inv_A_B;
         sN = c[N] - A[:,N]'*y';
         
+		# Gradient Descent
         k = argmax(sN);
         k_val = sN[k];
+		
+		# Bland Rule
+		# ind_of_pos = findfirst(x->x>0, SN);
+		# if ind_of_pos != nothing
+		#	k_val = -1;
+		#   k = [];
+		# else
+		#	k = ind_of_pos;
+		#	k_val = sN[k];
+		# end
 
-        if k_val <= eps
-            x[B] = xB;
+        if all(x->x<=0 (k_val-eps).num)
+            #x[B] = xB;
             obj = c'*x;
             
             if genLatex
@@ -78,7 +97,10 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         
         d = inv_A_B*A[:,N[k]];
         #println(d)
-        zz = findall(x->x>eps, d);
+		
+		# standard version: findall(x->x>eps, d);
+		# the NA counterpart check if any component is > eps and all the previous are at least -eps, i.e., positive
+        zz = findall(z->(idx=findfirst(x->x>eps, z.num); idx|=nothing && all(x->x>-eps, z.num[1:idx-1])), d);
         
         if isempty(zz)
             obj = convert(T, Inf);
