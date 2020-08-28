@@ -35,7 +35,7 @@ function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t
 	#	 	 _				_
 	# _b =  |_ ble	beq	 bge_|
 	
-	_b = Vector{T}(undef, n_constraints);
+	_b = Matrix{T}(undef, n_constraints,1);
 	_b[1:ns] = copy(b[idx_smaller_equal]);
 	_b[ns+1:ns+ne] = copy(b[idx_equal]);
 	_b[ns+ne+1:end] = copy(b[idx_greater_equal]);
@@ -49,7 +49,9 @@ function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t
 	_c[1:nx] = copy(c);
     
     if M < 0 # NA approach
-        _c[nx+ns+1:nx+ns+ne+nr] .= -α #-ones(T, ne+nr).*α#(α^(degree(maximum(abs.(c)))+length(one(Ban).num)+1));    
+		num = zeros(SIZE);
+		num[1]=-1;
+        _c[nx+ns+1:nx+ns+ne+nr] .= -α # Ban(SIZE, num); #-ones(T, ne+nr).*α#(α^(degree(maximum(abs.(c)))+length(one(Ban).num)+1));    
     else  # std approach
         _c[nx+ns+1:nx+ns+ne+nr] .= -M;
     end

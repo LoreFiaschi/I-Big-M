@@ -42,9 +42,9 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
             print(",\\, $elem");
             end
             print("\\} \$ & \$ ");
-            print_latex(x);
-            print(" \$ & \$ ");
-            print_latex((c'*x)[1]);
+			print_latex(x);
+			print(" \$ & \$ ");
+			print_latex((c'*x)[1]);
             println(" \$ \\\\");
             println("\t\\hline");
         elseif verbose
@@ -61,22 +61,27 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         
         y = c[B]'*inv_A_B;
         sN = c[N] - A[:,N]'*y';
-        
+		sN = denoise(sN, 1e-12)
+		
 		# Gradient Descent
-        k = argmax(sN);
-        k_val = sN[k];
+        # k = argmax(sN);
+        # k_val = sN[k];
 		
 		# Bland Rule
-		# ind_of_pos = findfirst(x->x>0, SN);
-		# if ind_of_pos != nothing
-		#	k_val = -1;
-		#   k = [];
-		# else
-		#	k = ind_of_pos;
-		#	k_val = sN[k];
-		# end
+		ind_of_pos = findfirst(x->x>eps, sN);
+		if ind_of_pos == nothing
+			k_val = -1;
+		    k = [];
+		else
+		 	k = ind_of_pos;
+			k_val = sN[k];
+		end
+		
+		#print("k_val: "); println(k_val);
+		
+		#degree_improvement = findfirst(x->x>0, k_val.num);
 
-        if all(x->x<=0 (k_val-eps).num)
+        if k_val < 0 #degree_improvement==nothing || any(x->x<=0, (k_val-eps).num[1:degree_improvement])
             #x[B] = xB;
             obj = c'*x;
             
@@ -85,12 +90,13 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
                 println("\\label{tab:}")
                 println("\\end{table}");
                 println("");
-            elseif verbose
-                println("Optimization completed");
-                println("Resume:");
-                println("\ttotal iterations: $iter");
-                print("\tobjective function: "); println(obj);
             end
+			
+			println("Optimization completed");
+			println("Resume:");
+			println("\ttotal iterations: $iter");
+			print("\tobjective function: "); println(obj);
+			println("");
             
             return obj, x, B, iter;
         end
@@ -100,7 +106,7 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 		
 		# standard version: findall(x->x>eps, d);
 		# the NA counterpart check if any component is > eps and all the previous are at least -eps, i.e., positive
-        zz = findall(z->(idx=findfirst(x->x>eps, z.num); idx|=nothing && all(x->x>-eps, z.num[1:idx-1])), d);
+        zz = findall(z->(idx=findfirst(x->x>eps, z.num); idx!=nothing && all(x->x>-eps, z.num[1:idx-1])), d);
         
         if isempty(zz)
             obj = convert(T, Inf);
