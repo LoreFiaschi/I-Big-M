@@ -33,7 +33,7 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
     end
 
     iter = 0;
-    while true
+    while true	
         iter +=1;
         
         if genLatex
@@ -57,11 +57,20 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
             println("");
         end
         
+		#=
+		for r in eachrow(A[:,B])
+			println(r);
+		end
+		println("");
+		=#
+		
         inv_A_B = inv(A[:,B]);
         
         y = c[B]'*inv_A_B;
         sN = c[N] - A[:,N]'*y';
 		sN = denoise(sN, 1e-12)
+		
+		#print("sN: "); println(sN);
 		
 		# Gradient Descent
         # k = argmax(sN);
@@ -78,6 +87,7 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 		end
 		
 		#print("k_val: "); println(k_val);
+		#print("k: "); println(k);
 		
 		#degree_improvement = findfirst(x->x>0, k_val.num);
 
