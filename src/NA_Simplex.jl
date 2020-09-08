@@ -68,16 +68,17 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         
         y = c[B]'*inv_A_B;
         sN = c[N] - A[:,N]'*y';
-		sN = denoise(sN, 1e-12)
+		sN = denoise(sN, eps[1])
 		
 		#print("sN: "); println(sN);
+		#println("");
 		
 		# Gradient Descent
         # k = argmax(sN);
         # k_val = sN[k];
 		
 		# Bland Rule
-		ind_of_pos = findfirst(x->x>eps, sN);
+		ind_of_pos = findfirst(x->x>eps, sN); # TODO modify in the external version of >
 		if ind_of_pos == nothing
 			k_val = -1;
 		    k = [];
@@ -86,8 +87,12 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 			k_val = sN[k];
 		end
 		
-		#print("k_val: "); println(k_val);
-		#print("k: "); println(k);
+		#=
+		print("k_val: "); println(k_val);
+		print("k: "); println(k);
+		println("");
+		println("");
+		=#
 		
 		#degree_improvement = findfirst(x->x>0, k_val.num);
 
@@ -128,7 +133,17 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         quality = xB[zz]./d[zz];
         ii = argmin(quality); 
         theta = quality[ii];
-        
+		
+		#=
+		print("xB: "); println(xB[zz]);
+		print("d: "); println(d[zz]);
+		println("");
+		print("quality: "); println(quality);
+		print("theta: "); println(theta);
+		#print("ii: "); println(ii);
+		println("");
+		println("");
+        =#
         l = zz[ii]
         temp = B[l];
         B[l] = N[k];
