@@ -21,6 +21,11 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 
     x = zeros(T, n_variables);
     x[B] = xB;
+	
+	aux_var = map(z->z[1], findall(z->z.p>0, c));
+	
+	#println(not_aux_var);
+	#error()
     
     if genLatex
         println("\\begin{table}[!ht]");
@@ -68,21 +73,27 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         
         y = c[B]'*inv_A_B;
         sN = c[N] - A[:,N]'*y';
-		sN = denoise(sN, eps[1])
+		#print("sN: "); println(sN);
+		#println("");
+		sN = denoise(sN, eps[1]) # DANGER!! entries can change sign, is it a problem?
 		
 		#print("sN: "); println(sN);
 		#println("");
+		
+		#not_aux_var_N = findall(z->(z in not_aux_var), N);
 		
 		# Gradient Descent
         # k = argmax(sN);
         # k_val = sN[k];
 		
 		# Bland Rule
-		ind_of_pos = findfirst(x->x>eps, sN); # TODO modify in the external version of >
+		#ind_of_pos = findfirst(x->x>eps, sN[not_aux_var_N]); # TODO modify in the external version of >  if considered necessary
+		ind_of_pos = findfirst(x->x>eps, sN); # TODO modify in the external version of >  if considered necessary
 		if ind_of_pos == nothing
 			k_val = -1;
 		    k = [];
 		else
+		 	#k = not_aux_var_N[ind_of_pos];
 		 	k = ind_of_pos;
 			k_val = sN[k];
 		end
@@ -91,7 +102,7 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 		print("k_val: "); println(k_val);
 		print("k: "); println(k);
 		println("");
-		println("");
+		#println("");
 		=#
 		
 		#degree_improvement = findfirst(x->x>0, k_val.num);
@@ -112,16 +123,19 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 			println("\ttotal iterations: $iter");
 			print("\tobjective function: "); println(obj);
 			println("");
+			print("\tauxiliary variables: "); println(denoise(x[aux_var], eps[1]));
+			println("");
             
             return obj, x, B, iter;
         end
         
         d = inv_A_B*A[:,N[k]];
-        #println(d)
+        #print("d_pre: "); println(d); println("");
 		
-		# standard version: findall(x->x>eps, d);
+		# standard version
+		#zz = findall(x->x>eps, d); # TODO transform in the external version of > if considered necessary
 		# the NA counterpart check if any component is > eps and all the previous are at least -eps, i.e., positive
-        zz = findall(z->(idx=findfirst(x->x>eps, z.num); idx!=nothing && all(x->x>-eps, z.num[1:idx-1])), d);
+        zz = findall(z->(idx=findfirst(x->x>eps[1], z.num); idx!=nothing && all(x->x>-eps[1], z.num[1:idx-1])), d); # Could need of a denoise later
         
         if isempty(zz)
             obj = convert(T, Inf);
@@ -144,15 +158,21 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 		println("");
 		println("");
         =#
-        l = zz[ii]
+		
+        
+        
+        x[B] -= theta*d 
+		x[N[k]] = theta;
+		
+		l = zz[ii]
         temp = B[l];
         B[l] = N[k];
         N[k] = temp;
-        
-        xB -= theta*d;
-        xB[l] = theta;
-     
-        x[B] = xB;
-        x[N[k]] = zero(T);
+		
+		xB = x[B];
+		
+		#neg = findall(z->z<0, x);
+		#neg!=[] && (print("negative entries: "); println(neg); print("value: "); println(x[neg]); println("");)
+		#x = denoise(x, eps[1]);
     end
 end
