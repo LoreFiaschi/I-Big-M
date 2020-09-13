@@ -51,7 +51,7 @@ function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t
     if M < 0 # NA approach
 		num = zeros(SIZE);
 		num[1]=-1;
-        _c[nx+ns+1:nx+ns+ne+nr] .= -α*α # Ban(SIZE-1, num); # -α #-ones(T, ne+nr).*α#(α^(degree(maximum(abs.(c)))+length(one(Ban).num)+1));    
+        _c[nx+ns+1:nx+ns+ne+nr] .= -α # Ban(SIZE-1, num); # -α #-ones(T, ne+nr).*α#(α^(degree(maximum(abs.(c)))+length(one(Ban).num)+1));    
     else  # std approach
         _c[nx+ns+1:nx+ns+ne+nr] .= -M;
     end

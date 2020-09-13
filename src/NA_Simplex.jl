@@ -1,5 +1,8 @@
+using ProgressMeter
+
 function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
-						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=true,genLatex::Bool=false) where T <: Number
+						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=true,genLatex::Bool=false,
+						showprogress::Bool=false) where T <: Number
 
 
 	# The method implements the revised simplex method in Box 7.1 on page 103 of Chvatal
@@ -23,9 +26,6 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
     x[B] = xB;
 	
 	aux_var = map(z->z[1], findall(z->z.p>0, c));
-	
-	#println(not_aux_var);
-	#error()
     
     if genLatex
         println("\\begin{table}[!ht]");
@@ -35,7 +35,9 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         println("\t\\hline");
         println("\t\\textbf{Iter.} & \\textbf{Base} & \$ \\mathbf{x}^* \$ & \$ \\tilde{\\mathbf{c}}^T \\mathbf{x}^* \$ \\\\");
         println("\t\\hline");
-    end
+    elseif showprogress
+		prog = ProgressUnknown("Iteration:");
+	end
 
     iter = 0;
     while true	
@@ -60,6 +62,8 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
             #print("\tSolution: ");
             #println(x);
             println("");
+		elseif showprogress
+			ProgressMeter.next!(prog);
         end
         
 		#=
@@ -80,14 +84,11 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 		#print("sN: "); println(sN);
 		#println("");
 		
-		#not_aux_var_N = findall(z->(z in not_aux_var), N);
-		
 		# Gradient Descent
         # k = argmax(sN);
         # k_val = sN[k];
 		
 		# Bland Rule
-		#ind_of_pos = findfirst(x->x>eps, sN[not_aux_var_N]); # TODO modify in the external version of >  if considered necessary
 		ind_of_pos = findfirst(x->x>eps, sN); # TODO modify in the external version of >  if considered necessary
 		if ind_of_pos == nothing
 			k_val = -1;
@@ -116,26 +117,37 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
                 println("\\label{tab:}")
                 println("\\end{table}");
                 println("");
+			elseif showprogress
+				ProgressMeter.finish!(prog);
             end
 			
-			println("Optimization completed");
+			print("Optimization completed, ");
+			(all(z->z==0, denoise(x[aux_var], eps[1]))) ? println("feasible solution found") : println("unfeasible solution found");
 			println("Resume:");
 			println("\ttotal iterations: $iter");
 			print("\tobjective function: "); println(obj);
 			println("");
-			print("\tauxiliary variables: "); println(denoise(x[aux_var], eps[1]));
+			#=
+			println("")
+			println("DEBUG")
 			println("");
+			
+			inv_A_B = inv(A[:,B]);
+			y = c[B]'*inv_A_B;
+			sN = c[N] - A[:,N]'*y';
+			println("sN: ");
+			for s in sN
+				println(s);
+			end
+			=#
             
             return obj, x, B, iter;
         end
         
-        d = inv_A_B*A[:,N[k]];
+        d = denoise(inv_A_B*A[:,N[k]], eps[1]);
         #print("d_pre: "); println(d); println("");
 		
-		# standard version
-		#zz = findall(x->x>eps, d); # TODO transform in the external version of > if considered necessary
-		# the NA counterpart check if any component is > eps and all the previous are at least -eps, i.e., positive
-        zz = findall(z->(idx=findfirst(x->x>eps[1], z.num); idx!=nothing && all(x->x>-eps[1], z.num[1:idx-1])), d); # Could need of a denoise later
+		zz = findall(x->x>0, d); # it works thanks to previous denoise
         
         if isempty(zz)
             obj = convert(T, Inf);
@@ -154,7 +166,7 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
 		println("");
 		print("quality: "); println(quality);
 		print("theta: "); println(theta);
-		#print("ii: "); println(ii);
+		print("ii: "); println(ii);
 		println("");
 		println("");
         =#
@@ -170,9 +182,6 @@ function na_simplex(A::Matrix{T},b::Array{T,2},c::Array{T,2},B::Array{Int64,1},
         N[k] = temp;
 		
 		xB = x[B];
-		
-		#neg = findall(z->z<0, x);
-		#neg!=[] && (print("negative entries: "); println(neg); print("value: "); println(x[neg]); println("");)
 		#x = denoise(x, eps[1]);
     end
 end

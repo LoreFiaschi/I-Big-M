@@ -1,7 +1,8 @@
 include("packages.jl")
 
 function I_Big_M(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t::AbstractVector{Int};
-						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=false,genLatex::Bool=false) where T <: Number
+						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=false,genLatex::Bool=false,
+						showprogress::Bool=false) where T <: Number
 
 	# The problem form
 	#
@@ -21,7 +22,7 @@ function I_Big_M(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},
 	any(x->degree(x)>=1, c) && throw(ArgumentError("Entries of c must be non-infinite"));
 
 	_A,_b,_c,initial_base = modify(A,b,c,t);
-	obj, x, base, iter = na_simplex(_A,_b,_c,initial_base,eps,verbose,genLatex);
+	obj, x, base, iter = na_simplex(_A,_b,_c,initial_base,eps,verbose,genLatex,showprogress);
 	
 	return obj, x[1:size(A)[2]], base, iter;
 end
