@@ -1,8 +1,11 @@
-include("packages.jl")
+include("modify.jl")
+include("NA_Simplex.jl")
 
-function I_Big_M(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t::AbstractVector{Int};
-						eps::Number=convert(promote_type(T,Float64),1e-5),verbose::Bool=false,genLatex::Bool=false,
-						showprogress::Bool=false) where T <: Number
+using LinearAlgebra
+
+function I_Big_M(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVector{T}, t::Vector{Int};
+					tol::Real, verbose::Bool=false, genLatex::Bool=false,
+					showprogress::Bool=false) where T <: Number
 
 	# The problem form
 	#
@@ -16,13 +19,17 @@ function I_Big_M(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},
 	#	Assuming b >= 0
 	
 	# check whether b >= 0
-	any(x->x<0, b) && throw(ArgumentError("b must be a vector of non-negative entries"));
+	any(x->x<0, b) && throw(ArgumentError("Entries of vector b must be non-negative"));
 	
 	# check wether any c[i] is infinite
-	any(x->degree(x)>=1, c) && throw(ArgumentError("Entries of c must be non-infinite"));
+	any(x->degree(x)>=1, c) && throw(ArgumentError("Entries of vector c must be non-infinite"));
 
-	_A,_b,_c,initial_base = modify(A,b,c,t);
-	obj, x, base, iter = na_simplex(_A,_b,_c,initial_base,eps,verbose,genLatex,showprogress);
+	_A,_b,_c,initial_basis = modify(A,b,c,t);
+	obj, x, basis, iter = na_simplex(_A,_b,_c,initial_basis,tol,verbose,genLatex,showprogress);
+
+	# fixing of numerical instabilities in infinitesimal components
+	xB = _A[:, basis]\_b;
+	x[basis] = xB;
 	
-	return obj, x[1:size(A)[2]], base, iter;
+	return obj, x[1:size(A,2)], basis, iter;
 end

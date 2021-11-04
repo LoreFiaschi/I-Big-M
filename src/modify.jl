@@ -1,4 +1,4 @@
-function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t::AbstractVector{Int},M::Real=-1) where T <: Number
+function modify(A::AbstractMatrix{T},b::AbstractVector{T},c::AbstractVector{T},t::Vector{Int},M::Real=-1) where T <: Number
 	
 	# b is assumed with non-negative entries
 	# c is assumed to be at most finite
@@ -35,7 +35,7 @@ function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t
 	#	 	 _				_
 	# _b =  |_ ble	beq	 bge_|
 	
-	_b = Matrix{T}(undef, n_constraints,1);
+	_b = Vector{T}(undef, n_constraints);
 	_b[1:ns] = copy(b[idx_smaller_equal]);
 	_b[ns+1:ns+ne] = copy(b[idx_equal]);
 	_b[ns+ne+1:end] = copy(b[idx_greater_equal]);
@@ -43,15 +43,13 @@ function modify(A::AbstractMatrix{T},b::AbstractMatrix{T},c::AbstractMatrix{T},t
 	
 	# Creation and initialization of the vector _c
 	#	 	 _			   _
-	# _c =  |_ c* 0 -1 -1 0_|	*the entries are shrinked in order to be at most infinitesimal of the first order (Still TODO)
+	# _c =  |_ c* 0 -α -α 0_| #TODO shrink down c* to make it at most finite
 	
-	_c = zeros(T, nx+ns+ne+2*nr, 1);
+	_c = zeros(T, nx+ns+ne+2*nr);
 	_c[1:nx] = copy(c);
     
     if M < 0 # NA approach
-		num = zeros(SIZE);
-		num[1]=-1;
-        _c[nx+ns+1:nx+ns+ne+nr] .= -α # Ban(SIZE-1, num); # -α #-ones(T, ne+nr).*α#(α^(degree(maximum(abs.(c)))+length(one(Ban).num)+1));    
+        _c[nx+ns+1:nx+ns+ne+nr] .= -α;
     else  # std approach
         _c[nx+ns+1:nx+ns+ne+nr] .= -M;
     end
