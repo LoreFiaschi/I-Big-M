@@ -3,7 +3,18 @@ include("../../ArithmeticNonStandarNumbersLibrary/src/BAN.jl")
 
 using .BAN
 
-M = α
+M = α;
+experiment = 2;
+
+function load_params(experiment)
+	
+	if experiment==1
+		return [1; 1; zeros(Ban, size(A, 2)-2)];
+	end
+
+	return [-1; 1; zeros(Ban, size(A, 2)-2)];
+
+end 
 
 	# x1 x2  x11 x21 x12 x22 y1  y2
 A = [ 0   0   0   0   0   0   1   1; # y1 + y2 = 1
@@ -22,12 +33,12 @@ A = [ 0   0   0   0   0   0   1   1; # y1 + y2 = 1
 	];
 
 b = [1; zeros(Ban, size(A, 1)-1)];
-c = [1; 1; zeros(Ban, size(A, 2)-2)];
+c = load_params(experiment);
 
 tol = 1e-5;
 t = [zeros(Int64, 3); -ones(Int64, 5); 1; -ones(Int64, 2); 1; -1];
 
-obj, x, basis, iter = I_Big_M(A, b,c, t, tol=tol, verbose=false, showprogress=true);
+obj, x, basis, iter = I_Big_M(A, b,c, t, tol=tol, verbose=false, genLatex=true, showprogress=false);
 
 print("\tSolution: "); println(x[1:2]);
 print("\tDisjoint flag: "); println(x[end-1:end]);

@@ -194,7 +194,7 @@ experiment = 2;
 
 A, b, c, t, regions = initialize_problem(experiment);
 tol =1e-5;
-obj, x, basis, iter = I_Big_M(A, b,c, t, tol=tol, verbose=false, showprogress=true);
+obj, x, basis, iter = I_Big_M(A, b,c, t, tol=tol, verbose=false, genLatex=true, showprogress=false);
 
 print("\tSolution: "); println(x);
 print("\tDisjoint flag: "); println(x[end-regions+1:end]);

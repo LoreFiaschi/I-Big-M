@@ -26,12 +26,12 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
 	
 	aux_var = map(z->z[1], findall(z->z.p>0, c)); # TODO : careful, it assumes use of BANs
     if genLatex
-        println("\\begin{table}[!ht]");
+        println("\\begin{table}[ht]");
         println("\t\\centering");
         println("\t\\caption{}");
         println("\t\\begin{tabular}{|c|c|c|c|}");
         println("\t\\hline");
-        println("\t\\textbf{Iter.} & \\textbf{Base} & \$ \\mathbf{x}^* \$ & \$ \\tilde{\\mathbf{c}}^T \\mathbf{x}^* \$ \\\\");
+        println("\t\\textbf{Iter.} & \\textbf{Basis} & \$ \\mathbf{x} \$ & \$ \\tilde{\\mathbf{c}}^T \\mathbf{x} \$ \\\\");
         println("\t\\hline");
     elseif showprogress
 		prog = ProgressUnknown("Iteration:");
@@ -49,14 +49,14 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
             print("\\} \$ & \$ ");
 			print_latex(x);
 			print(" \$ & \$ ");
-			print_latex((c'*x)[1]);
+			print_latex(c'*x);
             println(" \$ \\\\");
             println("\t\\hline");
         elseif verbose
             println("Iteration: $iter");
             println(string("\tB: ", B));
             print("\tCost: ")
-            println((c'*x)[1])
+            println(c'*x)
             println("");
 		elseif showprogress
 			ProgressMeter.next!(prog);
@@ -69,8 +69,6 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
 		sN = denoise(sN, tol) # DANGER!! entries can change sign, is it a problem?
 
 		# Bland Rule
-		# This implementation should speed the algorithm up
-		#	by skipping the infinitesimal improvements in place of finite ones when possibile
 
 		ind_of_pos = findfirst(x->x.num[1]>tol, sN);
 		
@@ -116,12 +114,14 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
         
         quality = xB[zz]./d[zz];
         ii = argmin(quality); 
-        theta = quality[ii];
+        θ = quality[ii];
         
-        x[B] -= theta*d 
-		x[N[k]] = theta;
+        x[B] -= θ*d 
+		x[N[k]] = θ;
 		
 		l = zz[ii]
+
+
         temp = B[l];
         B[l] = N[k];
         N[k] = temp;

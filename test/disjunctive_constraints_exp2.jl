@@ -4,6 +4,15 @@ include("../../ArithmeticNonStandarNumbersLibrary/src/BAN.jl")
 using .BAN
 
 M = α
+experiment = 2;
+
+function load_params(experiment)
+	if experiment==1
+		return [1; 1; zeros(Ban, size(A,2)-2)];
+	end
+
+	return [1; -1; zeros(Ban, size(A,2)-2)];
+end
 
 A = [ # x1   x2   x11   x21   x12   x22   x13   x23   x14   x24   y1   y2   y3   y4
         1    0    -1     0    -1     0    -1     0    -1     0    0    0    0    0;    # x1 - x11 - x12 - x13 - x14 = 0
@@ -42,12 +51,12 @@ A = [ # x1   x2   x11   x21   x12   x22   x13   x23   x14   x24   y1   y2   y3  
 
 b = [zeros(Ban, 2); 1; zeros(Ban, size(A,1)-3)];
 
-c = [1; 1; zeros(Ban, size(A,2)-2)];
+c = load_params(experiment);
 
 tol = 1e-5;
 t = [zeros(Int64, 3); -ones(Int64, 8); 1; -ones(Int64, 4); 1; -ones(Int64, 2); 1; -ones(Int64, 2); ones(Int64, 4); -ones(Int64, 2); ones(Int64, 3)];
 
-obj, x, basis, iter = I_Big_M(A, b,c, t, tol=tol, verbose=false, showprogress=true);
+obj, x, basis, iter = I_Big_M(A, b,c, t, tol=tol, verbose=false, genLatex=true, showprogress=false);
 
 print("\tSolution: "); println(x[1:2]);
 print("\tDisjoint flag: "); println(x[end-3:end]);

@@ -6,11 +6,11 @@ using .BAN
 function load_params(experiment)
 
 	if experiment==1
-		return 0.5, 1, 3, 3, 1, 1;
+		return 0.3, 1, 3, 3, 1, 1;
 	end
 
 	if experiment==2
-		return 1, 1, 3, 3, 1, 1;
+		return 2, 1, 3, 3, 1, 1;
 	end
 
 	if experiment==3
@@ -49,7 +49,7 @@ t = [zeros(Int64, 3); -ones(Int64, 4); zeros(Int64, 4)];
 
 tol = 1e-5;
 
-obj, x, basis, iter = I_Big_M(A, b,c, t, tol=tol, verbose=false, showprogress=false);
+obj, x, basis, iter = I_Big_M(A, b,c, t, tol=tol, verbose=false, genLatex=true, showprogress=false);
 
 #print("\tSolution: "); println(x[1:2]);
 print("\tSolution: "); println(x);
