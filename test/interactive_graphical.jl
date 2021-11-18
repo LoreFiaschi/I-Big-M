@@ -26,7 +26,7 @@ z4 = yC-yD+yV_;
 
 M = α;
 
-A_disj = [I zeros(Ban, 2, 6) -I zeros(Ban, 2, 6) [-z1 0; 0 -z2] zeros(Ban, 2, 2); zeros(Ban, 2, 4) I zeros(Ban, 2, 6) -I zeros(Ban, 2, 4) [-z3 0; 0 -z4]];
+A_disj = [I zeros(Ban, 2, 6) -I zeros(Ban, 2, 6) [-z1 0; 0 -z2] zeros(Ban, 2, 2); zeros(Ban, 2, 6) I zeros(Ban, 2, 6) -I zeros(Ban, 2, 2) [-z3 0; 0 -z4]];
 
 A_bounds = [I -M.*[Matrix(I, 4, 4); I; I; I]];
 
