@@ -4,6 +4,12 @@ include("../../ArithmeticNonStandarNumbersLibrary/src/BAN.jl")
 using LinearAlgebra
 using .BAN
 
+#
+# x1 <= 1 && x1 >= 2 && x2 <= 2 && x2 >= 1
+#
+# -x1+x2 >= 1 && -x1+x2 <= -1
+#
+
 M = α;
 
 A = [I -I -I zeros(Ban,4,2);
@@ -21,9 +27,9 @@ A = [A; A_dom];
 
 b = [zeros(Ban,4); 1; zeros(Ban, 14)];
 
-t = [zeros(Int64,5); -ones(Int64,8); 1; -1; 1; -1; 1; -1];
+t = [zeros(Int64,5); -ones(Int64,8); -1; 1; 1; -1; 1; -1];
 
-c = [1; -1;  1; -1; zeros(Ban,10)];
+c = (-1).*[1; -1;  1; -1; zeros(Ban,10)];
 
 tol = 1e-5;
 

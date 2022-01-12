@@ -49,7 +49,7 @@ function modify(A::AbstractMatrix{T},b::AbstractVector{T},c::AbstractVector{T},t
 	_c[1:nx] = copy(c);
     
     if M < 0 # NA approach
-        _c[nx+ns+1:nx+ns+ne+nr] .= -α;
+        _c[nx+ns+1:nx+ns+ne+nr] .= -α; #-α*α;
     else  # std approach
         _c[nx+ns+1:nx+ns+ne+nr] .= -M;
     end
