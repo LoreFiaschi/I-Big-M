@@ -9,6 +9,18 @@ using .BAN
 # -x1+ x2 <=  0    y=1
 # -x1-2x2 <= -2
 
+function load_param(experiment)
+
+	# standard
+	if experiment == 0
+		return [-1;  1;  1; -1; zeros(Ban,10)];
+	# min l1 norm
+	else
+		return [-1-η;  1-η;  1-η; -1-η; zeros(Ban,10)];
+	end
+end
+
+experiment = 1;
 M = α;
 
 A = [I -I -I zeros(Ban,4,2);
@@ -25,7 +37,7 @@ b = [zeros(Ban,4); 1; zeros(Ban, 11)];
 
 t = [zeros(Int64,5); -ones(Int64,11)];
 
-c = [-1;  1;  1; -1; zeros(Ban,10)];
+c = load_param(experiment);
 
 tol = 1e-5;
 
