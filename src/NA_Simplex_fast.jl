@@ -1,8 +1,7 @@
 using ProgressMeter
 
 function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVector{T}, B::Vector{Int64},
-						tol::Real, verbose::Bool=true, genLatex::Bool=false,
-						showprogress::Bool=false) where T <: Number
+						tol::Real) where T <: Number
 
 
 	# The method implements the revised simplex method in Box 7.1 on page 103 of Chvatal
@@ -12,6 +11,8 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
 	# max  c'*x
 	# s.t. Ax = b
 	#      x >= 0
+
+	#showprogress = true
 
 	n_constraints, n_variables = size(A);
     N = setdiff(1:n_variables, B);
@@ -26,17 +27,9 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
     x[B] = xB;
 	
 	aux_var = map(z->z[1], findall(z->z.p>0, c)); # TODO : careful, it assumes use of BANs
-    if genLatex
-        println("\\begin{table}[ht]");
-        println("\t\\centering");
-        println("\t\\caption{}");
-        println("\t\\begin{tabular}{|c|c|c|c|}");
-        println("\t\\hline");
-        println("\t\\textbf{Iter.} & \\textbf{Basis} & \$ \\mathbf{x} \$ & \$ \\tilde{\\mathbf{c}}^T \\mathbf{x} \$ \\\\");
-        println("\t\\hline");
-    elseif showprogress
+    #if showprogress
 		prog = ProgressUnknown("Iteration:");
-	end
+	#end
 
 	
 
@@ -44,26 +37,9 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
     while true #iter < 44 #
         iter +=1;
         
-        if genLatex
-            print("\t$iter & \$ \\{$(B[1])");
-            for elem in B[2:end]
-            print(",\\, $elem");
-            end
-            print("\\} \$ & \$ ");
-			print_latex(x);
-			print(" \$ & \$ ");
-			print_latex(c'*x);
-            println(" \$ \\\\");
-            println("\t\\hline");
-        elseif verbose
-            println("Iteration: $iter");
-            println(string("\tB: ", B));
-            print("\tCost: ")
-            println(c'*x)
-            println("");
-		elseif showprogress
+        #if showprogress
 			ProgressMeter.next!(prog);
-        end
+        #end
         
 		#inv_A_B = A[:,B]\I;
         
@@ -71,19 +47,6 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
         sN_ = c[N] - A[:,N]'*y';
 		sN = denoise(sN_, tol) # DANGER!! entries can change sign, is it a problem?
 
-#=
-		if iter > 36
-			println(c'*x)
-			#print("\t");
-			#println(B)
-			idx = findall(x->x.num1>tol, sN_)
-			println(sN_[idx])
-			idx = findall(x->x.num1>tol, sN)
-			println(sN[idx])
-			println("")
-
-		end
-=#
 		# Bland Rule
 
 #		ind_of_pos = findfirst(x->x.num[1]>tol, sN); # General purpose library
@@ -100,14 +63,9 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
         if k_val < 0
             obj = c'*x;
             
-            if genLatex
-                println("\\end{tabular}");
-                println("\\label{tab:}")
-                println("\\end{table}");
-                println("");
-			elseif showprogress
+			#if showprogress
 				ProgressMeter.finish!(prog);
-            end
+            #end
 			
 			print("Optimization completed, ");
 			(all(z->z==0, x[aux_var])) ? println("feasible solution found") : println("unfeasible solution found");
@@ -133,25 +91,7 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
         
         quality = xB[zz]./d[zz];
         ii = argmin(quality); 
-#=
-		if iter > 32
-			print(c'*x)
-			println("\tin:$(k)($(N[k]))\tout:$(ii)($(B[ii]))");
-			println("")
-			idx = findall(x->x>0, d_)
-			println(d_[idx])
-			println("")
-			idx = findall(x->x>0, d)			
-			println(d[idx])
-			println("")			
-			println(x[zz])
-			println("")
-			println(quality)
-			println("")
-			println("")
 
-		end
-=#
 #        θ = quality[ii];
         
 #       x[B] -= θ*d 
