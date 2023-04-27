@@ -28,7 +28,7 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
 	
 	aux_var = map(z->z[1], findall(z->z.p>0, c)); # TODO : careful, it assumes use of BANs
     #if showprogress
-		prog = ProgressUnknown("Iteration:");
+	#	prog = ProgressUnknown("Iteration:");
 	#end
 
 	
@@ -38,14 +38,14 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
         iter +=1;
         
         #if showprogress
-			ProgressMeter.next!(prog);
+		#	ProgressMeter.next!(prog);
         #end
         
 		#inv_A_B = A[:,B]\I;
         
         y = c[B]'*inv_A_B;
-        sN_ = c[N] - A[:,N]'*y';
-		sN = denoise(sN_, tol) # DANGER!! entries can change sign, is it a problem?
+        sN = c[N] - A[:,N]'*y';
+		#sN = denoise(sN, tol) # DANGER!! entries can change sign, is it a problem?
 
 		# Bland Rule
 
@@ -64,21 +64,22 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
             obj = c'*x;
             
 			#if showprogress
-				ProgressMeter.finish!(prog);
+			#	ProgressMeter.finish!(prog);
             #end
-			
+			#=
 			print("Optimization completed, ");
 			(all(z->z==0, x[aux_var])) ? println("feasible solution found") : println("unfeasible solution found");
 			println("Resume:");
 			println("\ttotal iterations: $iter");
 			print("\tobjective function: "); println(obj);
 			println("");
+			=#
             
             return obj, x, B, iter;
         end
         
-		d_ = inv_A_B*A[:,N[k]]
-        d = denoise(d_, tol);
+		d = inv_A_B*A[:,N[k]]
+#        d = denoise(d, tol);
 
 		zz = findall(x->x>0, d); # it works thanks to previous denoise
         

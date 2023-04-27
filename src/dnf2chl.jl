@@ -1,9 +1,9 @@
-include("../../ArithmeticNonStandarNumbersLibrary/src/BAN_s2_isbits.jl")
+#include("../../ArithmeticNonStandarNumbersLibrary/src/BAN_s2_isbits.jl")
 #include("../../ArithmeticNonStandarNumbersLibrary/src/BAN_s3_isbits.jl")
 #include("../../ArithmeticNonStandarNumbersLibrary/src/BAN.jl")
 using DelimitedFiles
 using LinearAlgebra
-using .BAN
+#using .BAN
 
 function load_constraints(idx)
 	A= readdlm("../data/A$(idx).csv", ',')
