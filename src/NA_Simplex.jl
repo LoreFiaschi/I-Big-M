@@ -41,7 +41,7 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
 	
 
     iter = 0;
-    while true #iter < 44 #
+    while true
         iter +=1;
         
         if genLatex
@@ -70,24 +70,12 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
         y = c[B]'*inv_A_B;
         sN_ = c[N] - A[:,N]'*y';
 		sN = denoise(sN_, tol) # DANGER!! entries can change sign, is it a problem?
+		verbose && println(string("\tsN: ", sN))
 
-#=
-		if iter > 36
-			println(c'*x)
-			#print("\t");
-			#println(B)
-			idx = findall(x->x.num1>tol, sN_)
-			println(sN_[idx])
-			idx = findall(x->x.num1>tol, sN)
-			println(sN[idx])
-			println("")
-
-		end
-=#
 		# Bland Rule
 
-#		ind_of_pos = findfirst(x->x.num[1]>tol, sN); # General purpose library
-		ind_of_pos = findfirst(x->x.num1>tol, sN); # s3 isbits library
+		ind_of_pos = findfirst(x->x.num[1]>tol, sN); # General purpose library
+#		ind_of_pos = findfirst(x->x.num1>tol, sN); # s3 isbits library
 		
 		if ind_of_pos == nothing
 			k_val = -1;
@@ -121,8 +109,10 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
         
 		d_ = inv_A_B*A[:,N[k]]
         d = denoise(d_, tol);
+		verbose && println(string("\td: ", d))
 
 		zz = findall(x->x>0, d); # it works thanks to previous denoise
+		verbose && println(string("\tzz: ", zz))
         
         if isempty(zz)
             obj = convert(T, Inf);
@@ -132,26 +122,9 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
         end
         
         quality = xB[zz]./d[zz];
+		verbose && println(string("\tquality: ", quality))
         ii = argmin(quality); 
-#=
-		if iter > 32
-			print(c'*x)
-			println("\tin:$(k)($(N[k]))\tout:$(ii)($(B[ii]))");
-			println("")
-			idx = findall(x->x>0, d_)
-			println(d_[idx])
-			println("")
-			idx = findall(x->x>0, d)			
-			println(d[idx])
-			println("")			
-			println(x[zz])
-			println("")
-			println(quality)
-			println("")
-			println("")
 
-		end
-=#
 #        θ = quality[ii];
         
 #       x[B] -= θ*d 
@@ -172,5 +145,6 @@ function na_simplex(A::AbstractMatrix{T}, b::AbstractVector{T}, c::AbstractVecto
 		
 		x = denoise(x, tol);
 		xB = x[B];
+		verbose && println(string("\tx: ", x))
     end
 end
